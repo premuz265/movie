@@ -1,0 +1,134 @@
+/* Reset & base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #2F4F4F; /* DarkSlate */
+    color: #ffffff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background-color: #1C2B2B;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.logo {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #F0F8FF;
+}
+
+.search-bar {
+    display: flex;
+    gap: 10px;
+}
+
+.search-bar input {
+    padding: 8px 15px;
+    border-radius: 5px;
+    border: none;
+    width: 250px;
+    font-size: 1rem;
+}
+
+.search-bar button {
+    padding: 8px 15px;
+    background-color: #00CED1;
+    border: none;
+    border-radius: 5px;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.search-bar button:hover {
+    background-color: #20B2AA;
+}
+
+/* Main grid container */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+    padding: 20px 30px;
+}
+
+/* Movie/Music cards */
+.card {
+    background-color: #1C2B2B;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+.card img {
+    width: 100%;
+    height: auto;
+}
+
+.card-content {
+    padding: 10px;
+}
+
+.card-content h3 {
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+.card-content p {
+    font-size: 0.85rem;
+    color: #B0C4DE;
+}
+
+.card-buttons {
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.card-buttons a {
+    flex: 1;
+    text-align: center;
+    padding: 5px 0;
+    font-size: 0.8rem;
+    background-color: #00CED1;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #000;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.card-buttons a:hover {
+    background-color: #20B2AA;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 15px;
+    background-color: #1C2B2B;
+    margin-top: auto;
+    font-size: 0.85rem;
+    color: #B0C4DE;
+}
