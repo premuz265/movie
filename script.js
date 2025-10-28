@@ -1,4 +1,4 @@
-const TMDB_API_KEY = "YOUR_TMDB_KEY"; // <-- Replace with your TMDb API key
+const TMDB_API_KEY = "da640c5348b213160130caffad48ed48"; // <-- Replace with your TMDb API key
 const searchBtn = document.getElementById('searchBtn');
 const searchInput = document.getElementById('searchInput');
 const resultsDiv = document.getElementById('results');
