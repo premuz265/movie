@@ -1,150 +1,147 @@
 // ============================
-// API KEYS
+// API KEYS (replace with your own)
 // ============================
-const TMDB_API_KEY = "da640c5348b213160130caffad48ed48";           // Replace with your TMDb API key
-const JAMENDO_CLIENT_ID = "9f67f9aa"; // Replace with your Jamendo Client ID
+const TMDB_API_KEY="da640c5348b2160130caffad48ed48";
+const JAMENDO_CLIENT_ID="9f67f9aa";
+const NEWS_API_KEY="df826ebd7dbe45d39478d9e873bec3";
+const FOOTBALL_API_KEY="39743679d06c35722219d6fae5ef4b14c4fcfef3526bca21dec00dfe0644ac65";
 
 // ============================
-// DOM ELEMENTS
+// DOM
 // ============================
-const searchBtn = document.getElementById('searchBtn');
-const searchInput = document.getElementById('searchInput');
-const resultsDiv = document.getElementById('results');
+const searchBtn=document.getElementById('searchBtn');
+const searchInput=document.getElementById('searchInput');
+const resultsDiv=document.getElementById('results');
+const prevPageBtn=document.getElementById("prevPage");
+const nextPageBtn=document.getElementById("nextPage");
+const pageNumSpan=document.getElementById("pageNum");
+const tabButtons=document.querySelectorAll(".tab-button");
+const menuItems=document.querySelectorAll(".sub-menu .menu-item");
+const modal=document.getElementById("movieModal");
+const modalBody=document.getElementById("modal-body");
+const modalClose=document.querySelector(".modal .close");
+
+let currentTab="movies";
+let currentPage=1;
+let lastQuery="";
+const moviesPerPage=8;
+const musicPerPage=8;
 
 // ============================
-// TMDb FUNCTIONS
+// TMDb Functions
 // ============================
-async function searchTMDB(query) {
-    const url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    return data.results || [];
+async function searchTMDB(query){
+    const res=await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}`);
+    const data=await res.json();
+    return data.results||[];
 }
 
-async function getProviders(tmdbId, country = "US") {
-    const url = `https://api.themoviedb.org/3/movie/${tmdbId}/watch/providers?api_key=${TMDB_API_KEY}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    return data.results[country] || null;
-}
-
-// ============================
-// INTERNET ARCHIVE FUNCTIONS
-// ============================
-async function searchArchive(query) {
-    const url = `https://archive.org/advancedsearch.php?q=${encodeURIComponent(query)}&fl[]=identifier,title,description&output=json`;
-    const res = await fetch(url);
-    const data = await res.json();
-    return data.response.docs;
-}
-
-async function getArchiveFiles(identifier) {
-    const url = `https://archive.org/metadata/${identifier}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    return data.files || [];
+async function getProviders(tmdbId,country="US"){
+    const res=await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/watch/providers?api_key=${TMDB_API_KEY}`);
+    const data=await res.json();
+    return data.results[country]||null;
 }
 
 // ============================
-// JAMENDO FUNCTIONS
+// Jamendo Music
 // ============================
-async function searchJamendo(query) {
-    const url = `https://api.jamendo.com/v3.0/tracks/?client_id=${JAMENDO_CLIENT_ID}&format=jsonpretty&limit=5&namesearch=${encodeURIComponent(query)}&audioformat=mp31`;
-    const res = await fetch(url);
-    const data = await res.json();
-    return data.results || [];
+async function searchJamendo(query){
+    const res=await fetch(`https://api.jamendo.com/v3.0/tracks/?client_id=${JAMENDO_CLIENT_ID}&format=jsonpretty&limit=10&namesearch=${encodeURIComponent(query)}&audioformat=mp31`);
+    const data=await res.json();
+    return data.results||[];
 }
 
 // ============================
-// DISPLAY RESULTS FUNCTION
+// News API
 // ============================
-async function displayResults(query) {
-    resultsDiv.innerHTML = "<p style='grid-column:1/-1;text-align:center;'>Loading...</p>";
+async function fetchNews(){
+    const res=await fetch(`https://newsapi.org/v2/top-headlines?country=us&apiKey=${NEWS_API_KEY}`);
+    const data=await res.json();
+    return data.articles||[];
+}
 
-    // 1️⃣ TMDb movies
-    const movies = await searchTMDB(query);
+// ============================
+// Display Results
+// ============================
+async function displayResults(query=""){
+    resultsDiv.innerHTML="<p style='grid-column:1/-1;text-align:center;'>Loading...</p>";
+    resultsDiv.innerHTML="";
 
-    // 2️⃣ Internet Archive public-domain content
-    const archiveResults = await searchArchive(query);
+    if(currentTab==="movies"){
+        const movies=await searchTMDB(query);
+        const dataToShow=movies.slice((currentPage-1)*moviesPerPage,currentPage*moviesPerPage);
+        for(const movie of dataToShow){
+            const providers=await getProviders(movie.id);
+            let watchLink=providers&&providers.flatrate?providers.flatrate[0]?.link||"":"";
+            const trailerRes=await fetch(`https://api.themoviedb.org/3/movie/${movie.id}/videos?api_key=${TMDB_API_KEY}`);
+            const trailerData=await trailerRes.json();
+            const trailer=trailerData.results.find(v=>v.type==="Trailer"&&v.site==="YouTube");
+            const trailerLink=trailer?`https://www.youtube.com/embed/${trailer.key}`:"";
 
-    // 3️⃣ Jamendo music
-    const musicResults = await searchJamendo(query);
-
-    resultsDiv.innerHTML = ""; // Clear loading
-
-    // --- Display TMDb movies ---
-    for (const movie of movies.slice(0, 10)) {
-        const providers = await getProviders(movie.id);
-        let watchLink = "";
-        if (providers && providers.flatrate) {
-            watchLink = providers.flatrate[0]?.link || "";
+            const card=document.createElement('div');
+            card.className="card";
+            card.setAttribute("data-icon","🎬");
+            card.innerHTML=`
+                <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title}">
+                <div class="card-content">
+                    <h3>${movie.title}</h3>
+                    <p>Movie • ${movie.release_date?movie.release_date.slice(0,4):"N/A"}</p>
+                    <div class="card-buttons">
+                        ${watchLink?`<a href="${watchLink}" target="_blank">Watch</a>`:""}
+                        ${trailerLink?`<button class="previewBtn">Preview</button>`:""}
+                    </div>
+                </div>
+            `;
+            resultsDiv.appendChild(card);
+            if(trailerLink){
+                const previewBtn=card.querySelector(".previewBtn");
+                previewBtn.addEventListener("click",()=>{
+                    modalBody.innerHTML=`
+                        <h2>${movie.title}</h2>
+                        <iframe src="${trailerLink}" frameborder="0" allowfullscreen></iframe>
+                        ${watchLink?`<p><a href="${watchLink}" target="_blank">Watch Full Movie</a></p>`:""}
+                    `;
+                    modal.style.display="block";
+                });
+            }
         }
+    }
 
-        const card = document.createElement('div');
-        card.className = "card";
-        card.innerHTML = `
-            <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title}">
-            <div class="card-content">
-                <h3>${movie.title}</h3>
-                <p>Movie • ${movie.release_date ? movie.release_date.slice(0,4) : "N/A"}</p>
-                <div class="card-buttons">
-                    ${watchLink ? `<a href="${watchLink}" target="_blank">Watch</a>` : ""}
+    else if(currentTab==="music"){
+        const tracks=await searchJamendo(query);
+        const dataToShow=tracks.slice((currentPage-1)*musicPerPage,currentPage*musicPerPage);
+        for(const track of dataToShow){
+            const card=document.createElement('div');
+            card.className="card";
+            card.setAttribute("data-icon","🎵");
+            card.innerHTML=`
+                <img src="${track.album_image}" alt="${track.name}">
+                <div class="card-content">
+                    <h3>${track.name}</h3>
+                    <p>Music • ${track.artist_name}</p>
+                    <div class="card-buttons">
+                        <a href="${track.audio}" target="_blank">Download</a>
+                        <a href="${track.audio}" target="_blank">Play</a>
+                    </div>
                 </div>
-            </div>
-        `;
-        resultsDiv.appendChild(card);
+            `;
+            resultsDiv.appendChild(card);
+        }
     }
 
-    // --- Display Internet Archive public-domain movies/music ---
-    for (const item of archiveResults.slice(0,5)) {
-        const files = await getArchiveFiles(item.identifier);
-        const mediaFile = files.find(f => f.format?.toLowerCase().includes("mp4") || f.format?.toLowerCase().includes("mp3"));
-        if (!mediaFile) continue;
-
-        const card = document.createElement('div');
-        card.className = "card";
-        card.innerHTML = `
-            <img src="https://archive.org/services/img/${item.identifier}" alt="${item.title}">
-            <div class="card-content">
-                <h3>${item.title}</h3>
-                <p>Public-domain ${mediaFile.format.includes("mp3") ? "Music" : "Movie"}</p>
-                <div class="card-buttons">
-                    <a href="https://archive.org/download/${item.identifier}/${mediaFile.name}" target="_blank">Download</a>
-                </div>
-            </div>
-        `;
-        resultsDiv.appendChild(card);
-    }
-
-    // --- Display Jamendo music ---
-    for (const track of musicResults) {
-        const card = document.createElement('div');
-        card.className = "card";
-        card.innerHTML = `
-            <img src="${track.album_image}" alt="${track.name}">
-            <div class="card-content">
-                <h3>${track.name}</h3>
-                <p>Music • ${track.artist_name}</p>
-                <div class="card-buttons">
-                    <a href="${track.audio}" target="_blank">Download</a>
-                    <a href="${track.audio}" target="_blank">Play</a>
-                </div>
-            </div>
-        `;
-        resultsDiv.appendChild(card);
-    }
-
-    if (resultsDiv.innerHTML === "") {
-        resultsDiv.innerHTML = "<p style='grid-column:1/-1;text-align:center;'>No results found.</p>";
-    }
+    pageNumSpan.innerText=currentPage;
+    prevPageBtn.disabled=currentPage===1;
+    nextPageBtn.disabled=false;
 }
 
 // ============================
-// EVENT LISTENER
+// Event Listeners
 // ============================
-searchBtn.addEventListener('click', () => {
-    const query = searchInput.value.trim();
-    if (!query) return;
-    displayResults(query);
-});
-
+searchBtn.addEventListener("click",()=>{ lastQuery=searchInput.value.trim(); currentPage=1; displayResults(lastQuery); });
+tabButtons.forEach(btn=>{ btn.addEventListener("click",()=>{ tabButtons.forEach(b=>b.classList.remove("active")); btn.classList.add("active"); currentTab=btn.dataset.tab; currentPage=1; displayResults(lastQuery); }); });
+menuItems.forEach(item=>{ item.addEventListener("click",()=>{ menuItems.forEach(i=>i.classList.remove("active")); item.classList.add("active"); currentTab=item.dataset.category; currentPage=1; displayResults(lastQuery); }); });
+prevPageBtn.addEventListener("click",()=>{ if(currentPage>1){currentPage--; displayResults(lastQuery);} });
+nextPageBtn.addEventListener("click",()=>{ currentPage++; displayResults(lastQuery); });
+modalClose.addEventListener("click",()=>{ modal.style.display="none"; });
+window.addEventListener("click",(e)=>{ if(e.target==modal) modal.style.display="none"; });
+displayResults();
