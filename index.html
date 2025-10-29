@@ -1,30 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atodomo</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atodomo</title>
+<link rel="stylesheet" href="style.css">
+
+<!-- AdSense (replace with your own client ID) -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 </head>
 <body>
-    <header>
-        <div class="logo">Atodomo</div>
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Search movies or music...">
-            <button id="searchBtn">Search</button>
-        </div>
-    </header>
+<header>
+    <div class="logo">Atodomo</div>
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search movies, music, news...">
+        <button id="searchBtn">Search</button>
+    </div>
+</header>
 
-    <main>
-        <div id="results" class="grid-container">
-            <!-- Movie results will appear here -->
-        </div>
-    </main>
+<!-- Sub-heading menu -->
+<nav class="sub-menu">
+    <a href="#" class="menu-item active" data-category="soccer">⚽ Soccer Updates</a>
+    <a href="#" class="menu-item" data-category="movies">🎬 Movies</a>
+    <a href="#" class="menu-item" data-category="social">💬 Social Media</a>
+    <a href="#" class="menu-item" data-category="news">📰 News</a>
+</nav>
 
-    <footer>
-        <p>&copy; 2025 Atodomo | All content legal & public-domain or linked</p>
-    </footer>
+<!-- Ads Top -->
+<div class="adsense-top">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-XXXXXXXXXX"
+         data-ad-slot="1234567890"
+         data-ad-format="auto"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</div>
 
-    <script src="script.js"></script>
+<main>
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab-button active" data-tab="movies">Movies</button>
+        <button class="tab-button" data-tab="music">Music</button>
+    </div>
+
+    <!-- Results grid -->
+    <div id="results" class="grid-container"></div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        <button id="prevPage" disabled>Prev</button>
+        <span id="pageNum">1</span>
+        <button id="nextPage">Next</button>
+    </div>
+</main>
+
+<!-- Modal -->
+<div id="movieModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <div id="modal-body"></div>
+    </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
