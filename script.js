@@ -1,5 +1,6 @@
 // ============================
-// API KEYS (replace with your own)
+// API KEYS ("da640c5348b2160130caffad48ed48"
+"9f67f9aa"df826ebd7dbe45d39478d93873bec3"39743679d06c35722219d6fae5ef4b14c4fcfee3526bca21dec00dfeo644ac65")
 // ============================
 const TMDB_API_KEY="da640c5348b2160130caffad48ed48";
 const JAMENDO_CLIENT_ID="9f67f9aa";
